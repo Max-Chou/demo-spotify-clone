@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block page %}
+
+<div class="entityInfo">
+
+	<div class="leftSection">
+		<img src="{{ album.artwork_url }}">
+	</div>
+
+	<div class="rightSection">
+		<h2>{{ album.title }}</h2>
+		<p role="link" tabindex="0" onclick="openPage('artist.php?id=<?php echo $artistId; ?>')">By {{ album.artist.name }}</p>
+		<p>{{ album.songs.count() }} songs</p>
+
+	</div>
+
+</div>
+
+
+
+<div class="tracklistContainer">
+	<ul class="tracklist">
+    
+    {% for song in album.songs.all() %}
+    
+
+    <li class='tracklistRow'>
+      <div class='trackCount'>
+      <img class='play' src="{{ url_for('static', filename='images/icons/play-white.png') }}" onclick="setTrack({{ song.id }}, {{ data }}, true)">
+        <span class='trackNumber'>{{ loop.index }}</span>
+      </div>
+
+
+      <div class='trackInfo'>
+        <span class='trackName'>{{ song.title }}</span>
+        <span class='artistName'>{{ song.artist.name }}</span>
+      </div>
+
+      <div class='trackOptions'>
+        <input type='hidden' class='songId' value="{{ song.id }}">
+        <img class='optionsButton' src="{{ url_for('static', filename='images/icons/more.png') }}" onclick='showOptionsMenu(this)'>
+      </div>
+
+      <div class='trackDuration'>
+        <span class='duration'>{{ song.duration }}</span>
+      </div>
+    </li>
+    {% endfor %}
+	</ul>
+</div>
+
+
+{% if current_user.is_authenticated %}
+<nav class="optionsMenu">
+	<input type="hidden" class="songId">
+	<select class="item playlist">
+		<option value="">Add to playlist</option>'
+	</select>
+</nav>
+{% endif %}
+
+{% endblock %}

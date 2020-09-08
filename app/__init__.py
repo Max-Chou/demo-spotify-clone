@@ -9,7 +9,7 @@ def create_app(config_name):
     config[config_name].init_app(app)
 
     db.init_app(app)
-    #login_manager.init_app(app)
+    login_manager.init_app(app)
 
     from .page import page
     app.register_blueprint(page)

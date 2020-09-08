@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block page %}
+
+
+<div class="entityInfo borderBottom">
+
+	<div class="centerSection">
+
+		<div class="artistInfo">
+
+			<h1 class="artistName">{{ artist.name }}</h1>
+
+			<div class="headerButtons">
+				<button class="button green" onclick="playFirstSong()">PLAY</button>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
+
+<div class="tracklistContainer borderBottom">
+	<h2>SONGS</h2>
+	<ul class="tracklist">
+		
+
+		{% for song in artist.songs.all() %}
+		<li class='tracklistRow'>
+			<div class='trackCount'>
+				<img class='play' src="{{ url_for('static', filename='images/icons/play-white.png') }}" onclick="setTrack({{ song.id }}, tempPlaylist, true)">
+				<span class='trackNumber'>{{ loop.index }}</span>
+			</div>
+
+
+			<div class='trackInfo'>
+				<span class='trackName'>{{ song.title }}</span>
+				<span class='artistName'>{{ song.artist.name }}</span>
+			</div>
+
+			<div class='trackOptions'>
+				<input type='hidden' class='songId' value="{{ song.id }}">
+				<img class='optionsButton' src="{{ url_for('static', filename='images/icons/more.png') }}" onclick='showOptionsMenu(this)'>
+			</div>
+
+			<div class='trackDuration'>
+				<span class='duration'>{{ song.duration }}</span>
+			</div>
+
+
+		</li>
+		{% endfor %}
+
+		<script>
+			var tempSongIds = {{ data | tojson }};
+			tempPlaylist = tempSongIds;
+		</script>
+
+	</ul>
+</div>
+
+<div class="gridViewContainer">
+	<h2>ALBUMS</h2>
+
+	{% for album in artist.albums %}
+
+	<div class='gridViewItem'>
+		<span role='link' tabindex='0' onclick="openPage('{{ url_for("page.album", id=album.id) }}')">
+			<img src="{{ album.artwork_url }}">
+
+			<div class='gridViewInfo'>
+				{{ album.title }}
+			</div>
+		</span>
+
+	</div>
+	{% endfor %}
+</div>
+
+{% if current_user.is_authenticated %}
+<nav class="optionsMenu">
+	<input type="hidden" class="songId">
+	<select class="item playlist">
+		<option value="">Add to playlist</option>'
+	</select>
+</nav>
+{% endif %}
+
+{% endblock %}

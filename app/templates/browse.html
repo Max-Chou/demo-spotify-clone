@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block page %}
+
+<h1 class="pageHeadingBig">You Might Also Like</h1>
+
+<div class="gridViewContainer">
+  {% for album in albums %}
+  <div class='gridViewItem'>
+    <span role='link' tabindex='0' onclick="openPage('{{ url_for("page.album", id=album.id) }}')">
+      <img src="{{ album.artwork_url }}">
+
+      <div class='gridViewInfo'>
+        {{ album.title }}
+      </div>
+    </span>
+
+  </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

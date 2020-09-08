@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  faketube:
+  shutify:
     build: .
     ports:
       - "8000:5000"
@@ -9,7 +9,7 @@ services:
     command: >
       gunicorn -b 0.0.0.0:5000 -w 3 --access-logfile - --error-logfile - --reload shutify:app
     volumes:
-      - ".:/faketube"
+      - ".:/shutify"
   
   dev-db:
     image: "postgres:12.3"

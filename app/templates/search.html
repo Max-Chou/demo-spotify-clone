@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block page %}
+
+<div class="searchContainer">
+
+	<h4>Search for an artist, album or song</h4>
+	<input type="text" class="searchInput" value="{{ term }}" placeholder="Start typing..." onfocus="this.value = this.value">
+
+</div>
+
+<script>
+
+	$(".searchInput").focus();
+	
+	$(function() {
+		
+		$(".searchInput").keyup(function() {
+			clearTimeout(timer);
+	
+			timer = setTimeout(function() {
+				var val = $(".searchInput").val();
+				openPage("/search?term=" + val );
+			}, 2000);
+	
+		})
+	
+	
+	})
+	
+</script>
+
+<div class="tracklistContainer borderBottom">
+	<h2>SONGS</h2>
+	<ul class="tracklist">
+		{% if songs %}
+
+		{% for song in songs %}
+		<li class='tracklistRow'>
+			<div class='trackCount'>
+				<img class='play' src="{{ url_for('static', filename='images/icons/play-white.png') }}" onclick="setTrack({{ song.id }}, tempPlaylist, true)">
+				<span class='trackNumber'>{{ loop.index }}</span>
+			</div>
+
+
+			<div class='trackInfo'>
+				<span class='trackName'>{{ song.title }}</span>
+				<span class='artistName'>{{ song.artist.name }}</span>
+			</div>
+
+			<div class='trackOptions'>
+				<input type='hidden' class='songId' value='{{ song.id }}'>
+				<img class='optionsButton' src="{{ url_for('static', filename='images/icons/more.png') }}" onclick='showOptionsMenu(this)'>
+			</div>
+
+			<div class='trackDuration'>
+				<span class='duration'>{{ song.duration }}</span>
+			</div>
+		</li>
+		{% endfor %}
+
+		<script>
+			var tempSongIds = {{ data | tojson }};
+			tempPlaylist = tempSongIds;
+		</script>
+
+		{% else %}
+		<span class='noResults'>No songs found matching...</span>
+		{% endif %}
+	</ul>
+</div>
+
+
+<div class="artistsContainer borderBottom">
+
+	<h2>ARTISTS</h2>
+	{% if artists %}
+	{% for artist in artists %}
+
+	<div class='searchResultRow'>
+		<div class='artistName'>
+
+			<span role='link' tabindex='0' onclick="openPage('{{ url_for("page.artist", id=artist.id) }}')">
+			{{ artist.name }}
+			</span>
+
+		</div>
+
+	</div>
+
+	{% endfor %}
+	{% else %}
+  <span class='noResults'>No artists found matching...</span>
+	{% endif %}
+
+</div>
+
+<div class="gridViewContainer">
+	<h2>ALBUMS</h2>
+	{% if albums %}
+	{% for album in albums %}
+	<div class='gridViewItem'>
+		<span role='link' tabindex='0' onclick="openPage('{{ url_for("page.album", id=album.id) }}')">
+			<img src="{{ album.artwork_url }}">
+
+			<div class='gridViewInfo'>
+				{{ album.title }}
+			</div>
+		</span>
+
+	</div>
+	{% endfor %}
+	{% else %}
+	<span class='noResults'>No albums found matching...</span>
+	{% endif %}
+</div>
+
+{% if current_user.is_authenticated %}
+<nav class="optionsMenu">
+	<input type="hidden" class="songId">
+	<select class="item playlist">
+		<option value="">Add to playlist</option>'
+	</select>
+</nav>
+{% endif %}
+
+{% endblock %}
