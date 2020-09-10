@@ -1,7 +1,7 @@
 FROM python:3.6
 
 ENV FLASK_APP shutify.py
-ENV FLASK_CONFIG development
+ENV FLASK_CONFIG production
 
 WORKDIR /shutify
 
