@@ -45,7 +45,12 @@ def album():
 
         data = [song.id for song in album.songs.all() ]
 
-        return render_template('album.html', album=album, data=data)
+        if current_user.is_authenticated:
+            playlists = Playlist.query.filter_by(user_id=current_user.id).all()
+        else:
+            playlists = None
+
+        return render_template('album.html', album=album, data=data, playlists=playlists)
     else:
         return abort(404)
 
@@ -70,8 +75,20 @@ def browse():
 
 
 @page.route('/playlist')
+@login_required
 def playlist():
-    return "<h1>Playlist Page</h1>"
+
+    if request.args.get('id'):
+        playlist = Playlist.query.get_or_404(request.args.get('id'))
+
+        songs_query = Song.query.join(PlaylistSong).join(Playlist).filter(Playlist.id == playlist.id)
+
+        data = [song.id for song in songs_query.all() ]
+
+        return render_template('playlist.html', data=data, playlist=playlist, songs_query=songs_query)
+    else:
+        return abort(404)
+
 
 
 @page.route('/register', methods=['GET', 'POST'])
@@ -123,17 +140,22 @@ def logout():
 
 @page.route('/settings')
 def settings():
-    return "<h1>Settings Page</h1>"
+
+    return render_template('settings.html', data=None)
 
 
 @page.route('/updateDetails')
 def updateDetails():
-    return "<h1>updateDetails Page</h1>"
+    return render_template('updateDetails.html', data=None)
 
 
 @page.route('/yourMusic')
+@login_required
 def yourMusic():
-    return "<h1>yourMusic Page</h1>"
+
+    playlists = Playlist.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('yourMusic.html', data=None, playlists=playlists)
 
 
 @page.route('/getSongJson', methods=['POST'])
@@ -203,6 +225,101 @@ def updatePlays():
         return jsonify({'success':True}), 200, {'ContentType':'application/json'} 
     else:
         return abort(404)
+
+
+@page.route('/createPlaylist', methods=['POST'])
+def createPlaylist():
+
+    if request.form.get('name'):
+        playlist = Playlist(name=request.form.get('name'), user_id=request.form.get('userId'))
+        db.session.add(playlist)
+        db.session.commit()
+        # return jsonify({'success':True}), 200, {'ContentType':'application/json'} 
+        return ""
+    else:
+        return abort(404)        
+
+
+@page.route('/deletePlaylist', methods=['POST'])
+def deletePlaylist():
+
+    if request.form.get('playlistId'):
+        playlist = Playlist.query.get_or_404(request.form.get('playlistId'))
+        playlistsongs = PlaylistSong.query.filter_by(playlist_id=playlist.id).all()
+        for playlistsong in playlistsongs:
+            db.session.delete(playlistsong)
+        db.session.delete(playlist)
+        db.session.commit()
+        return ""
+    else:
+        return abort(404)
+
+
+@page.route('/addToPlaylist', methods=['POST'])
+def addToPlaylist():
+
+    if request.form.get('playlistId') and request.form.get('songId'):
+        
+        playlistsong = PlaylistSong.query.filter_by(playlist_id=request.form.get('playlistId'), song_id=request.form.get('songId')).first()
+
+        if playlistsong is None:
+            track = PlaylistSong.query.filter_by(playlist_id=request.form.get('playlistId')).count()
+            track += 1
+            playlistsong = PlaylistSong(playlist_id=request.form.get('playlistId'), song_id=request.form.get('songId'), track=track)
+            db.session.add(playlistsong)
+            db.session.commit()
+        return ""
+    else:
+        return abort(404)
+
+
+@page.route('/removeFromPlaylist', methods=['POST'])
+def removeFromPlaylist():
+    if request.form.get('playlistId') and request.form.get('songId'):
+        playlistsong = PlaylistSong.query.filter_by(playlist_id=request.form.get('playlistId'), song_id=request.form.get('songId')).first()
+        
+        if playlistsong:
+            db.session.delete(playlistsong)
+            db.session.commit()
+
+        return ""
+    else:
+        return abort(404)
+
+
+@page.route('/updateEmail', methods=['POST'])
+@login_required
+def updateEmail():
+    if request.form.get('email'):
+        user = User.query.filter_by(email=request.form.get('email')).first()
+        if user is None:
+            user = User.query.get_or_404(current_user.id)
+            user.email = request.form.get('email')
+            db.session.add(user)
+            db.session.commit()
+            return "Update successful"
+        else:
+            return "Email is already in use"
+
+    else:
+        return abort(404)
+
+
+@page.route('/updatePassword', methods=['POST'])
+@login_required
+def updatePassword():
+    if request.form.get('newPassword1') == request.form.get('newPassword2'):
+        user = User.query.get_or_404(current_user.id)
+        if user.verify_password(request.form.get('oldPassword')):
+            user.password = request.form.get('newPassword1')
+            db.session.add(user)
+            db.session.commit()
+            return "Update successful"
+        else:
+            return "Your passwords is not valid"
+    else:
+        return "Your passwords do not match"
+
 
 # for admin only
 @page.route('/uploads')

@@ -80,10 +80,11 @@
 
 {% if current_user.is_authenticated %}
 <nav class="optionsMenu">
-	<input type="hidden" class="songId">
-	<select class="item playlist">
-		<option value="">Add to playlist</option>'
-	</select>
+  <input type="hidden" class="songId">
+    Add to Playlist
+    {% for playlist in playlists %}
+    <div class="item" onclick="addToPlaylist(this, '{{ playlist.id }}')">{{ playlist.name }}</div>
+    {% endfor %}
 </nav>
 {% endif %}
 

@@ -79,7 +79,7 @@
 
         $(document).ready(function() {
           //var newPlaylist = {{ data |tojson }};
-          var newPlaylist = [];
+          var newPlaylist = [1];
           console.log(newPlaylist);
           audioElement = new Audio();
           setTrack(newPlaylist[0], newPlaylist, false);
@@ -217,10 +217,12 @@
         function setTrack(trackId, newPlaylist, play) {
         
           console.log(newPlaylist);
+
           if(newPlaylist != currentPlaylist) {
             currentPlaylist = newPlaylist;
             shufflePlaylist = currentPlaylist.slice();
             shuffleArray(shufflePlaylist);
+            console.log(shufflePlaylist);
           }
         
           if(shuffle == true) {
@@ -256,6 +258,7 @@
               playSong();
             }
           });
+
         
         }
         

@@ -11,10 +11,10 @@
 	</div>
 
 	<div class="rightSection">
-		<h2><?php echo $playlist->getName(); ?></h2>
-		<p>By <?php echo $playlist->getOwner(); ?></p>
-		<p><?php echo $playlist->getNumberOfSongs(); ?> songs</p>
-		<button class="button" onclick="deletePlaylist('<?php echo $playlistId; ?>')">DELETE PLAYLIST</button>
+		<h2>{{ playlist.name }}</h2>
+		<p>By {{ playlist.user.username }}</p>
+		<p>{{ songs_query.count() }} songs</p>
+		<button class="button" onclick="deletePlaylist('{{ playlist.id }}')">DELETE PLAYLIST</button>
 
 	</div>
 
@@ -24,59 +24,44 @@
 <div class="tracklistContainer">
 	<ul class="tracklist">
 		
-		<?php
-		$songIdArray = $playlist->getSongIds();
-
-		$i = 1;
-		foreach($songIdArray as $songId) {
-
-			$playlistSong = new Song($con, $songId);
-			$songArtist = $playlistSong->getArtist();
-
-			echo "<li class='tracklistRow'>
-					<div class='trackCount'>
-						<img class='play' src='assets/images/icons/play-white.png' onclick='setTrack(\"" . $playlistSong->getId() . "\", tempPlaylist, true)'>
-						<span class='trackNumber'>$i</span>
-					</div>
+		{% for song in songs_query.all() %}
+		<li class='tracklistRow'>
+			<div class='trackCount'>
+				<img class='play' src="{{ url_for('static', filename='images/icons/play-white.png') }}" onclick="setTrack({{ song.id }}, tempPlaylist, true)">
+				<span class='trackNumber'>{{ loop.index }}</span>
+			</div>
 
 
-					<div class='trackInfo'>
-						<span class='trackName'>" . $playlistSong->getTitle() . "</span>
-						<span class='artistName'>" . $songArtist->getName() . "</span>
-					</div>
+			<div class='trackInfo'>
+				<span class='trackName'>{{ song.title }}</span>
+				<span class='artistName'>{{ song.artist.name }}</span>
+			</div>
 
-					<div class='trackOptions'>
-						<input type='hidden' class='songId' value='" . $playlistSong->getId() . "'>
-						<img class='optionsButton' src='assets/images/icons/more.png' onclick='showOptionsMenu(this)'>
-					</div>
+			<div class='trackOptions'>
+				<input type='hidden' class='songId' value="{{ song.id }}">
+				<img class='optionsButton' src="{{ url_for('static', filename='images/icons/more.png') }}" onclick='showOptionsMenu(this)'>
+			</div>
 
-					<div class='trackDuration'>
-						<span class='duration'>" . $playlistSong->getDuration() . "</span>
-					</div>
-
-
-				</li>";
-
-			$i = $i + 1;
-		}
-
-		?>
+			<div class='trackDuration'>
+				<span class='duration'>{{ song.duration }}</span>
+			</div>
+		</li>
+		{% endfor %}
 
 		<script>
-			var tempSongIds = '<?php echo json_encode($songIdArray); ?>';
-			tempPlaylist = JSON.parse(tempSongIds);
+			var tempSongIds = {{ data | tojson }};
+			tempPlaylist = tempSongIds;
 		</script>
 
 	</ul>
 </div>
 
-<!--
+
 <nav class="optionsMenu">
 	<input type="hidden" class="songId">
-	<?php echo Playlist::getPlaylistsDropdown($con, $userLoggedIn->getUsername()); ?>
-	<div class="item" onclick="removeFromPlaylist(this, '<?php echo $playlistId; ?>')">Remove from Playlist</div>
+	<div class="item" onclick="removeFromPlaylist(this, '{{ playlist.id }}')">Remove from Playlist</div>
 </nav>
--->
+
 
 
 {% endblock %}

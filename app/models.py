@@ -105,7 +105,7 @@ class PlaylistSong(db.Model):
     __tablename__ = 'playlistsongs'
 
     id = db.Column(db.Integer, primary_key=True)
-    track = db.Column(db.Integer, unique=True)
+    track = db.Column(db.Integer)
     
     song_id = db.Column(db.Integer, db.ForeignKey('songs.id'))
     playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'))

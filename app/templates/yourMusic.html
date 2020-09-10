@@ -8,25 +8,27 @@
 		<h2>PLAYLISTS</h2>
 
 		<div class="buttonItems">
-			<button class="button green" onclick="createPlaylist()">NEW PLAYLIST</button>
+			<button class="button green" onclick="createPlaylist({{ current_user.id }})">NEW PLAYLIST</button>
 		</div>
 
+    {% if playlists %}
+    {% for playlist in playlists %}
+    <div class='gridViewItem' role='link' tabindex='0' onclick="openPage('{{ url_for("page.playlist", id=playlist.id) }}')">
 
+      <div class='playlistImage'>
+        <img src="{{ url_for('static', filename='images/icons/playlist.png') }}">
+      </div>
+      
+      <div class='gridViewInfo'>
+      {{ playlist.name }}
+      </div>
+
+    </div>
+    {% endfor %}
+    {% else %}
     <span class='noResults'>You don't have any playlists yet.</span>
-    <!--
+    {% endif %}
 
-    <div class='gridViewItem' role='link' tabindex='0' onclick='openPage(\"playlist.php?id=" . $playlist->getId() . "\")'>
-
-						<div class='playlistImage'>
-							<img src='assets/images/icons/playlist.png'>
-						</div>
-						
-						<div class='gridViewInfo'>"
-							. $playlist->getName() .
-						"</div>
-
-					</div>
-        -->
 	</div>
 </div>
 
